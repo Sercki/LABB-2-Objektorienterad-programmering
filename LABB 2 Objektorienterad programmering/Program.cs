@@ -13,6 +13,7 @@ Ikea.AddNewItem(damaged);
 Ikea.AddNewItem(dishwasher);
 Ikea.AddNewItem(cooker);
 Ikea.Lista();
+//może tu coś w stylu zaladowane sprzety kuchenne, kliknij by przejsc do menu a po console.readline dac console clear?
 
 bool menu = true;
 while (menu)
@@ -27,7 +28,7 @@ while (menu)
     switch (choice)
     {
         case 1:
-            Ikea.action();
+            Ikea.Action();
             break;
         case 2:
             break;
@@ -35,6 +36,7 @@ while (menu)
             Ikea.Lista();
             break;
         case 4:
+            Ikea.RemoveItem();
             break;
         case 5:
             Console.WriteLine("Vi ses nästa gången!");
@@ -88,30 +90,37 @@ public class Equipment : IKitchenAppliance
 
 class Kitchen
 {
-    List<IKitchenAppliance> thing = new List<IKitchenAppliance>();    
+    List<IKitchenAppliance> thing = new List<IKitchenAppliance>();
     public void AddNewItem(IKitchenAppliance item)
     {
-        thing.Add(item);        
+        thing.Add(item);
     }
     public void Lista()
     {
         foreach (var item in thing)
         {
             Console.WriteLine(item.Type);
-        }        
+        }
     }
-    public void action()
+    public void Action()
     {
-        //tu try parse bo można wyjśc poza listę
+        //tu try catch bo można wyjśc poza listę
         int index = 1;
         Console.WriteLine($"Vilken köksapparat vill du använda? Du har:");
-        foreach(var item in thing)
+        foreach (var item in thing)
         {
-            Console.WriteLine($"{index}. {item.Type}"); 
+            Console.WriteLine($"{index}. {item.Type}");
             index++;
         }
         Console.Write(">");
         int.TryParse(Console.ReadLine(), out int number);
         thing[number - 1].Use();    //eftersom list börjar med index 0 - användaren behöver inte veta om det
+    } 
+    public void RemoveItem()
+    {
+        Console.WriteLine("Vilken köksapparat vill du ta bort?");
+            Console.Write(">");
+        int.TryParse(Console.ReadLine(), out int deleteAt);
+        thing.RemoveAt(deleteAt - 1);  //- 1 eftersom lista börjar med index 0 och inte 1. Så om användaren ska radera 1 objekt på listan, han skriver 1. I resultaten obiekt på index 0 raderas(första objekt i listan).
     }
 }
