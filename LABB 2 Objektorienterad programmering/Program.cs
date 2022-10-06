@@ -9,18 +9,18 @@ public interface IKitchenAppliance
     void Use();
 }
 /// <summary>
-/// Skapade en abstrakt klass rum som klass kitchen ärver från. Interface är redan en abstrakt klass, men övningen kräver en abstrakt klass också.
+/// Skapade en abstrakt klass room som klass kitchen ärver från. Interface är redan en abstrakt klass, men övningen kräver en abstrakt klass också.
 /// </summary>
-abstract class Rum    
+abstract class Room
 {
-    public abstract void MainMenu();
+    public abstract void MainMenu();        //olika typ av inkapsling
     protected abstract void AddNewItem();
     protected abstract void Lista();
     protected abstract void Action();
     protected abstract void RemoveItem();
 }
 /// <summary>
-/// Klass equipment ärver ifån interface IKitchenAppliance.
+/// Klass equipment ärver fån interface IKitchenAppliance.
 /// </summary>
 public class Equipment : IKitchenAppliance
 {
@@ -33,7 +33,7 @@ public class Equipment : IKitchenAppliance
         this.Brand = brand;
         this.IsFunctioning = isFunctioning;
     }
-     //Use metod skriver ut specifik meddelande som beror på om utrustning fungerar eller ej.
+    //Use metod skriver ut specifik meddelande som beror på om utrustning fungerar eller ej.
     public void Use()
     {
         if (IsFunctioning)
@@ -47,12 +47,12 @@ public class Equipment : IKitchenAppliance
     }
 }
 /// <summary>
-/// Klass Kitchen ärver från abstrakt klass rum.
+/// Klass Kitchen ärver från abstrakt klass room.
 /// </summary>
-class Kitchen :Rum
+class Kitchen : Room
 {
     List<IKitchenAppliance> things = new List<IKitchenAppliance>();
-   //main menu skriver ut en meny 
+    //main menu skriver ut en meny 
     public override void MainMenu()
     {
         bool menu = true;
@@ -94,7 +94,7 @@ class Kitchen :Rum
             }
         }
     }
-    //StartingList metod innehåller olika objekt av klass Equipment som är sparad i en lista <IKitchenAppliance> things, redo för att använda
+    //StartingList metod innehåller olika objekt av klass Equipment som ska sparas i en lista <IKitchenAppliance> things, redo för att använda när programmet startar.
     private void StartingList()
     {
         Equipment cooker = new Equipment("spis", "Daewoo", true);
@@ -109,35 +109,42 @@ class Kitchen :Rum
     //AddNewItem metod frågar användare om information som behövs att skapa nytt objekt av klass Equipment 
     protected override void AddNewItem()
     {
-        Console.Write("Ange typ av köksapparaten:\n>");
-        string type = Console.ReadLine();
-        Console.Write("Ange namn av köksapparaten:\n>");
-        string brand = Console.ReadLine();
-        Console.Write("Ange om köksapparaten fungerar (j/n):\n>");
-        bool isFunctioning;
-        while (true)
+        try
         {
-            string choice = Console.ReadLine();
-            if (choice == "j" || choice == "J")
+            Console.Write("Ange typ av köksapparaten:\n>");
+            string type = Console.ReadLine();
+            Console.Write("Ange namn av köksapparaten:\n>");
+            string brand = Console.ReadLine();
+            Console.Write("Ange om köksapparaten fungerar (j/n):\n>");
+            bool isFunctioning;
+            while (true)
             {
-                isFunctioning = true;
-                break;
+                string choice = Console.ReadLine();
+                if (choice == "j" || choice == "J")
+                {
+                    isFunctioning = true;
+                    break;
+                }
+                else if (choice == "n" || choice == "N")
+                {
+                    isFunctioning = false;
+                    break;
+                }
+                else
+                {
+                    Console.Write("Fel inmätning. Använd j för \"ja\" eller n för \"nej\". Försök igen:\n>");
+                }
             }
-            else if (choice == "n" || choice == "N")
-            {
-                isFunctioning = false;
-                break;
-            }
-            else
-            {
-                Console.Write("Fel inmätning. Använd j för \"ja\" eller n för \"nej\". Försök igen:\n>");
-            }
+            Equipment NewItem = new Equipment(type, brand, isFunctioning);
+            this.things.Add(NewItem);
+            Console.WriteLine("Tillagd!");
         }
-        Equipment NewItem = new Equipment(type, brand, isFunctioning);
-        this.things.Add(NewItem);
-        Console.WriteLine("Tillagd!");
+        catch
+        {
+            Console.WriteLine("Fel inträffat. Returnerar til huvudmeny...");
+        }
     }
-    //En metod Lista skriver ut alla objekt av klass equipment som blev sparade i en lista <IKitchenAppliance> things. Lista innehåller alla information som är kopplad till objektet
+    //En metod Lista skriver ut alla objekt av klass equipment som blev sparade i en lista <IKitchenAppliance> things. Lista innehåller alla information som är kopplad till ett objekt
     protected override void Lista()
     {
         if (things.Count == 0)
@@ -149,7 +156,7 @@ class Kitchen :Rum
             foreach (var item in things)
             {
                 string function;
-                if (item.IsFunctioning = true)
+                if (item.IsFunctioning == true)
                 {
                     function = "fungerar";
                 }
@@ -161,70 +168,82 @@ class Kitchen :Rum
             }
         }
     }
-   //action metod skriver ut meddelande om objektet fungerar eller inte. Det metod samarbetar med Use metod som finns inom klass equipment 
+    //action metod skriver ut meddelande om objektet fungerar eller inte. Det metod samarbetar med Use metod som finns inom klass equipment 
     protected override void Action()
     {
-        int index = 1;
-        int number = 0;
-        bool check = true;
-        Console.WriteLine($"Vilken köksapparat vill du använda? Du har:");
-        foreach (var item in things)
+        try
         {
-            Console.WriteLine($"{index}. {item.Type}");
-            index++;
-        }
-        Console.Write(">");
-        while (check)
-        {
-            try
-            {               //här använder jag try catch + Parse för att visa andra metoden än TryParse.
-                number = int.Parse(Console.ReadLine());
-                if (number < 1 || number > things.Count)
+            int index = 1;
+            int number = 0;
+            bool check = false;
+            Console.WriteLine($"Vilken köksapparat vill du använda? Du har:");
+            foreach (var item in things)
+            {
+                Console.WriteLine($"{index}. {item.Type}");
+                index++;
+            }
+            Console.Write(">");
+            while (check == false)
+            {
+                check = int.TryParse(Console.ReadLine(), out number);
+                if (check == true)
                 {
-                    Console.WriteLine($"Fel siffra. Välj mellan 1 och {things.Count}!");
+                    if (number < 1 || number > things.Count)
+                    {
+                        Console.WriteLine($"Fel siffra. Välj mellan 1 och {things.Count}!");
+                        check = false;
+                    }
                 }
                 else
                 {
-                    check = false;
+                    Console.WriteLine("Fel inmätning. Använd bara heltal.");
                 }
+
             }
-            catch
-            {
-                Console.WriteLine("Fel inmätning. Använd bara heltal.");
-            }
+            things[number - 1].Use();    //[number - 1] eftersom list börjar med index 0. I det fallet om användare väljer köksapparat med nummer ett - objekt på index 0 ska användas(första plats i en lista).
         }
-        things[number - 1].Use();    //eftersom list börjar med index 0 - användaren behöver inte veta om det
+        catch
+        {
+            Console.WriteLine("Fel inträffat. Returnerar til huvudmeny...");
+        }
     }
     //RemoveItem metod tar bort specifik objekt av klassen equipment från lista <IKitchenAppliance> things
     protected override void RemoveItem()
     {
-        if (things.Count == 0)
+        try
         {
-            Console.WriteLine("Du tog bort alla köksapparater!");
-        }
-        else
-        {
-            int deleteAt = 0;
-            bool check = true;
-            int index = 1;
-            Console.WriteLine("Vilken köksapparat vill du ta bort?");
-            things.ForEach(x => Console.WriteLine($"{index}. {x.Type}", index++)) ;
-            while (check)
+            if (things.Count == 0)
             {
-                Console.Write(">");
-                int.TryParse(Console.ReadLine(), out deleteAt); //här löste jag problemet med fel inmätning genom while loop och TryParse
-                if (deleteAt < 1 || deleteAt > things.Count)
-                {
-                    Console.WriteLine($"Fel inmätning. Välj mellan 1 och {things.Count}!");
-                }
-                else
-                {
-                    check = false;
-                }
+                Console.WriteLine("Du tog bort alla köksapparater!");
             }
-            string deletedEquipment = things[deleteAt - 1].Type;
-            things.RemoveAt(deleteAt - 1);  //- 1 eftersom lista börjar med index 0 och inte 1. Så om användaren ska radera 1 objekt på listan, han skriver 1. I resultaten obiekt på index 0 raderas(första objekt i listan).
-        Console.WriteLine($"{deletedEquipment} har tagits bort!");
+            else
+            {
+                int deleteAt = 0;
+                bool check = true;
+                int index = 1;
+                Console.WriteLine("Vilken köksapparat vill du ta bort?");
+                things.ForEach(x => Console.WriteLine($"{index}. {x.Type}", index++));
+                while (check)
+                {
+                    Console.Write(">");
+                    int.TryParse(Console.ReadLine(), out deleteAt); //här löste jag problemet med fel inmätning genom while loop och TryParse
+                    if (deleteAt < 1 || deleteAt > things.Count)
+                    {
+                        Console.WriteLine($"Fel inmätning. Välj mellan 1 och {things.Count}!");
+                    }
+                    else
+                    {
+                        check = false;
+                    }
+                }
+                string deletedEquipment = things[deleteAt - 1].Type;
+                things.RemoveAt(deleteAt - 1);  // (deleteAt - 1)  eftersom lista börjar med index 0 och inte 1. Så om användaren ska radera 1 objekt på listan, han skriver 1. I resultaten obiekt på index 0 raderas(första objekt i listan).
+                Console.WriteLine($"{deletedEquipment} har tagits bort!");
+            }
         }
-    }    
+        catch
+        {
+            Console.WriteLine("Fel inträffat. Returnerar til huvudmeny...");
+        }
+    }
 }
