@@ -20,7 +20,7 @@ abstract class Room
     protected abstract void RemoveItem();
 }
 /// <summary>
-/// Klass equipment ärver fån interface IKitchenAppliance.
+/// Klass equipment ärver från interface IKitchenAppliance.
 /// </summary>
 public class Equipment : IKitchenAppliance
 {
